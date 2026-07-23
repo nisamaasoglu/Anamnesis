@@ -1,3 +1,0 @@
-# Optional: only needed for the OpenAI or Ollama providers.
-# The project runs fully in offline mode without this file.
-openai>=1.30
