@@ -9,9 +9,22 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+import retrieval_eval
 from fastapi.testclient import TestClient
 
-from anamnesis import agent, config, db, embeddings, ingest, llm, retrieval, safety, seed, tools
+from anamnesis import (
+    agent,
+    config,
+    db,
+    embeddings,
+    ingest,
+    lexical,
+    llm,
+    retrieval,
+    safety,
+    seed,
+    tools,
+)
 from anamnesis.api import app, ensure_ready
 from anamnesis.vectorstore import Chunk, VectorStore
 
@@ -303,3 +316,47 @@ def test_ask_refuses_clinical_advice_over_http(client):
 
 def test_console_is_served(client):
     assert client.get("/").status_code == 200
+
+
+# --- Lexical ranking (offline mode) ---------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("word", "same_as"),
+    [("visiting", "visit"), ("visitors", "visitor"), ("hours", "hour"), ("policies", "policy")],
+)
+def test_stemmer_folds_inflected_forms(word, same_as):
+    assert lexical.stem(word) == lexical.stem(same_as)
+
+
+def test_abbreviations_are_expanded_in_the_query_only():
+    expanded = set(lexical.expand_query("Can I visit the ICU?"))
+    assert {lexical.stem(w) for w in ("intensive", "care", "unit")} <= expanded
+    assert lexical.terms("ICU") == ["icu"]
+
+
+@pytest.mark.parametrize(
+    ("question", "section"),
+    [
+        ("What are the visiting hours?", "General Visiting Hours"),
+        ("Can I visit the ICU?", "Intensive Care Unit"),
+        ("Can I get an interpreter for my appointment?", "Interpreters and Accessibility"),
+    ],
+)
+def test_the_heading_that_names_the_topic_ranks_first(question, section):
+    hits = retrieval.search(question)
+    assert hits, f"no evidence retrieved for {question!r}"
+    assert hits[0].chunk.section == section
+
+
+def test_one_incidental_shared_word_is_not_evidence():
+    """'best' appears in 'best interests'; that alone must not cite the Consent policy."""
+    assert retrieval.search("best pizza recipe in Naples") == []
+
+
+def test_retrieval_benchmark_does_not_regress():
+    """Guards the measured gains; see tests/retrieval_eval.py for the question sets."""
+    tuned_top1, tuned_top3, _ = retrieval_eval.evaluate(cases=retrieval_eval.CASES)
+    held_top1, held_top3, _ = retrieval_eval.evaluate(cases=retrieval_eval.HELD_OUT)
+    assert tuned_top1 >= 0.85 and tuned_top3 >= 0.95
+    assert held_top1 >= 0.55 and held_top3 >= 0.60

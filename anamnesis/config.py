@@ -42,6 +42,8 @@ CHUNK_WORDS = int(os.getenv("ANAMNESIS_CHUNK_WORDS", "110"))
 CHUNK_OVERLAP_WORDS = int(os.getenv("ANAMNESIS_CHUNK_OVERLAP_WORDS", "30"))
 TOP_K = int(os.getenv("ANAMNESIS_TOP_K", "4"))
 MIN_SCORE = float(os.getenv("ANAMNESIS_MIN_SCORE", "0.08"))
+# Minimum field-weighted BM25 score for a passage to count as evidence offline.
+BM25_MIN_SCORE = float(os.getenv("ANAMNESIS_BM25_MIN_SCORE", "2.0"))
 
 # --- Agent ----------------------------------------------------------------
 MAX_TOOL_STEPS = int(os.getenv("ANAMNESIS_MAX_TOOL_STEPS", "4"))

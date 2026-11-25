@@ -126,8 +126,9 @@ def describe_provider(provider: str | None = None) -> dict[str, object]:
         "model": f"signed-hashing-{config.EMBEDDING_DIM}d",
         "semantic": False,
         "note": (
-            "Lexical hashing vectoriser. Matches shared words, not shared meaning. "
-            "Deterministic and dependency-free; retrieval quality is lower than a "
-            "real embedding model."
+            "Lexical ranking: field-weighted BM25 with stemming and abbreviation "
+            "expansion, plus a hashing vectoriser as tie-breaker. Matches shared words, "
+            "not shared meaning. Deterministic and dependency-free; retrieval quality is "
+            "lower than a real embedding model."
         ),
     }
