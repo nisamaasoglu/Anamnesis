@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/nisamaasoglu/anamnesis/actions/workflows/ci.yml/badge.svg)](https://github.com/nisamaasoglu/anamnesis/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-1F6F6B)
-![Tests](https://img.shields.io/badge/tests-55%20passing-1F6F6B)
+![Tests](https://img.shields.io/badge/tests-58%20passing-1F6F6B)
 ![License](https://img.shields.io/badge/license-MIT-555)
 
 Anamnesis answers questions about how a hospital runs — visiting hours, bed capacity, clinic
@@ -255,7 +255,7 @@ anamnesis/
 │   └── api.py                # FastAPI app
 ├── knowledge_base/           # seven fictional policy documents
 ├── web/index.html            # single-file console, no build step
-├── tests/test_anamnesis.py   # 55 tests
+├── tests/test_anamnesis.py   # 58 tests
 ├── tests/retrieval_eval.py   # retrieval benchmark (tuning + held-out sets)
 ├── .github/workflows/ci.yml  # ruff + pytest on 3.10 / 3.11 / 3.12
 └── Dockerfile
@@ -270,7 +270,7 @@ pip install -r requirements-dev.txt
 python -m pytest -q
 ```
 
-55 tests, grouped by the guarantee they protect rather than by module:
+58 tests, grouped by the guarantee they protect rather than by module:
 
 - **Safety** — six phrasings of a clinical question are refused with no tool call; write
   requests are refused; ordinary questions pass.

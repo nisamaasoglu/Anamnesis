@@ -8,6 +8,7 @@ runs unchanged in a container, in CI and on a laptop.
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -55,7 +56,18 @@ SYNTHETIC_PATIENTS = int(os.getenv("ANAMNESIS_SYNTHETIC_PATIENTS", "60"))
 
 # --- Server ---------------------------------------------------------------
 HOST = os.getenv("ANAMNESIS_HOST", "127.0.0.1")
-PORT = int(os.getenv("ANAMNESIS_PORT", "8000"))
+
+
+def resolve_port(env: Mapping[str, str]) -> int:
+    """ANAMNESIS_PORT wins; otherwise the hosting platform's PORT; otherwise 8000.
+
+    Container hosts (Vercel, Render, Cloud Run) route traffic to $PORT, so a
+    server that ignores it is unreachable even though it starts cleanly.
+    """
+    return int(env.get("ANAMNESIS_PORT") or env.get("PORT") or "8000")
+
+
+PORT = resolve_port(os.environ)
 
 SYNTHETIC_DATA_NOTICE = (
     f"{HOSPITAL_NAME} is a fictional institution. All patient, appointment, bed and "

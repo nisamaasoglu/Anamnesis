@@ -360,3 +360,13 @@ def test_retrieval_benchmark_does_not_regress():
     held_top1, held_top3, _ = retrieval_eval.evaluate(cases=retrieval_eval.HELD_OUT)
     assert tuned_top1 >= 0.85 and tuned_top3 >= 0.95
     assert held_top1 >= 0.55 and held_top3 >= 0.60
+
+
+
+@pytest.mark.parametrize(
+    ("env", "port"),
+    [({}, 8000), ({"PORT": "80"}, 80), ({"PORT": "80", "ANAMNESIS_PORT": "9000"}, 9000)],
+)
+def test_port_follows_the_hosting_platform(env, port):
+    """Container hosts route to $PORT; listening elsewhere takes the demo offline."""
+    assert config.resolve_port(env) == port
